@@ -3,7 +3,9 @@
 https://registry.hub.docker.com/u/michaelneale/jenkins-docker-executors/dockerfile/
 
 http://developer-blog.cloudbees.com/2014/02/using-jenkins-with-docker.html
+
 http://jenkins-ci.org/content/official-jenkins-lts-docker-image
+
 https://github.com/cloudbees/jenkins-ci.org-docker
 
 # Docker-in-Docker
