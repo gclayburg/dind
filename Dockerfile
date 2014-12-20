@@ -18,7 +18,7 @@ RUN echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/
 VOLUME /var/lib/docker
 
 # Install the magic wrapper.
-ADD ./wrapdocker ./start-ssh-agent.sh ./fleetctl /usr/local/bin/
+ADD ./wrapdocker.sh ./start-ssh-agent.sh ./fleetctl /usr/local/bin/
 
 RUN usermod -G docker jenkins
 ENTRYPOINT ["/usr/local/bin/wrapdocker.sh"]
