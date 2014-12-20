@@ -21,6 +21,4 @@ VOLUME /var/lib/docker
 ADD ./wrapdocker ./start-ssh-agent.sh ./fleetctl /usr/local/bin/
 
 RUN usermod -G docker jenkins
-#CMD wrapdocker
 ENTRYPOINT ["/usr/local/bin/wrapdocker"]
-#ENTRYPOINT ["/usr/local/bin/jenkins.sh"]
