@@ -83,11 +83,14 @@ popd >/dev/null
 # delete it so that docker can start.
 rm -rf /var/run/docker.pid
 
+echo "docker DOCKER_DAEMON_ARGS =${DOCKER_DAEMON_ARGS}"
 # If we were given a PORT environment variable, start as a simple daemon;
 # otherwise, spawn a shell as well
 if [ "$PORT" ]
 then
 	exec docker -d -H 0.0.0.0:$PORT $DOCKER_DAEMON_ARGS
+elif [ "$ROOTCMD" ]; then
+        exec "$@"
 else
 	if [ "$LOG" == "file" ]
 	then
@@ -98,10 +101,18 @@ else
         echo "wrapdocker: arg1 is $1"
         echo "wrapdocker: all args: $@"
 
-        # if `docker run` first argument start with `--` the user is passing jenkins launcher arguments
-        if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
-        exec java $JAVA_OPTS -jar /usr/share/jenkins/jenkins.war $JENKINS_OPTS "$@"
-        fi
-        # As argument is not jenkins, assume user want to run his own process, for sample a `bash` shell to explore this image
-        exec "$@"
+        #Start ssh-agent as user jenkins.  This is done in a separate script so that when ssh-agent
+        # does a double fork, the ssh-process is still owned by user jenkins and not root
+        eval $(su -c "/usr/local/bin/start-ssh-agent.sh" jenkins)
+
+        export SSH_AUTH_SOCK
+        export SSH_AGENT_PID
+        #Add ssh key into SSH_AUTH_SOCK
+        su -c "ssh-add" jenkins
+        ssh-add -l
+        echo "processes running in container before starting jenkins:"
+        ps -elf
+
+        #Defer to jenkins docker image for jenkins.sh start script
+        su -c "/usr/local/bin/jenkins.sh $@" jenkins 
 fi
