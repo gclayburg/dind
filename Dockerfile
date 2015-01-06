@@ -6,7 +6,8 @@ RUN apt-get update -qq && apt-get install -qqy \
     apt-transport-https \
     ca-certificates \
     lxc \
-    iptables
+    iptables \
+    curl
     
 # Install Docker from Docker Inc. repositories.
 RUN echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list \
@@ -18,7 +19,7 @@ RUN echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/
 VOLUME /var/lib/docker
 
 # Install the magic wrapper.
-ADD ./wrapdocker.sh ./start-ssh-agent.sh ./fleetctl /usr/local/bin/
+ADD ./wrapdocker.sh ./start-ssh-agent.sh ./fleetctl ./etcdctl ./jq isTomcatRunning.sh /usr/local/bin/
 
 RUN usermod -G docker jenkins
 ENTRYPOINT ["/usr/local/bin/wrapdocker.sh"]
