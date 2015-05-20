@@ -1,4 +1,4 @@
-FROM jenkins
+FROM jenkins:1.596.2
 USER root
 
 # Let's start with some basic stuff.
