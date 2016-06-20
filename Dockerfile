@@ -1,4 +1,4 @@
-FROM jenkins:1.625.2
+FROM jenkins:1.651.3
 USER root
 
 # Let's start with some basic stuff.
@@ -10,7 +10,13 @@ RUN apt-get update -qq && apt-get install -qqy \
     curl
 
 # Install Docker from Docker Inc. repositories.
-RUN echo "hi" && curl -sSL https://get.docker.com/ | sh
+#RUN echo "hi" && curl -sSL https://get.docker.com/ | sh
+
+# show what docker version is available in the repo
+#RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && mkdir -p /etc/apt/sources.list.d && echo deb https://apt.dockerproject.org/repo ubuntu-trusty main > /etc/apt/sources.list.d/docker.list && apt-get update && apt-cache policy docker-engine
+
+# Install specific docker version to match docker version supplied by coreos.  This is to avoid issues with the docker daemon running on coreos and the docker client bundled inside this docker image
+RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && mkdir -p /etc/apt/sources.list.d && echo deb https://apt.dockerproject.org/repo ubuntu-trusty main > /etc/apt/sources.list.d/docker.list && apt-get update && apt-get install -y -q docker-engine=1.10.3-0~trusty
     
 # Define additional metadata for our image.
 VOLUME /var/lib/docker
