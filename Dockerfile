@@ -1,4 +1,4 @@
-FROM jenkins:1.596.2
+FROM jenkins:1.625.2
 USER root
 
 # Let's start with some basic stuff.
@@ -8,18 +8,22 @@ RUN apt-get update -qq && apt-get install -qqy \
     lxc \
     iptables \
     curl
-    
-# Install Docker from Docker Inc. repositories.
-RUN echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list \
-  && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 \
-  && apt-get update -qq \
-  && apt-get install -qqy lxc-docker-1.3.1
 
+# Install Docker from Docker Inc. repositories.
+RUN echo "hi" && curl -sSL https://get.docker.com/ | sh
+    
 # Define additional metadata for our image.
 VOLUME /var/lib/docker
 
 # Install the magic wrapper.
 ADD ./wrapdocker.sh ./start-ssh-agent.sh ./fleetctl ./etcdctl ./jq isTomcatRunning.sh /usr/local/bin/
 
-RUN usermod -G docker jenkins
-ENTRYPOINT ["/usr/local/bin/wrapdocker.sh"]
+# add jenkins to docker group which was created by docker install above (gid=999)
+# add jenkins user to docker group that coreos uses (gid=233) 
+# this allows the jenkins user to use the bind mount /var/run/docker.sock when this container is being run on coreos
+RUN usermod -G docker jenkins && \
+    groupadd -g 233 docker2 && \
+    usermod -G docker2 jenkins
+
+#ENTRYPOINT ["/usr/local/bin/wrapdocker.sh"]
+ENTRYPOINT ["/bin/tini", "--", "/usr/local/bin/wrapdocker.sh"]
